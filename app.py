@@ -15,7 +15,7 @@ if not st.session_state["authenticated"]:
 
 # Sidebar de navegación
 st.sidebar.title("Opciones")
-pagina = st.sidebar.selectbox("Selecciona una sección", ["Ruta de aprendizaje", "Chat de entrenamiento", 
+pagina = st.sidebar.selectbox("Selecciona una sección", ["Ruta de aprendizaje", "Chat de entrenamiento",
                                                          "¡Evalúa mi conocimiento!", "Dashboard progreso"])
 
 st.sidebar.button("Cerrar Sesión", on_click=logout)
