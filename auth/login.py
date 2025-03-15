@@ -28,7 +28,7 @@ def login_page():
             st.session_state["user"] = user_data
             st.session_state["id_user"] = user_data["data"]["employeeID"]
             st.success("¡Login exitoso!")
-            #st.rerun()
+            st.rerun()
         else:
             st.error("Usuario o contraseña incorrectos")
 

@@ -2,23 +2,30 @@ import streamlit as st
 from auth.login import login_page, logout
 from sections import chat, test, dashboard, training_path
 
-st.sidebar.title("Opciones")
-pagina = st.sidebar.selectbox("Selecciona una sección", ["Login", "Ruta de aprendizaje", "Chat de entrenamiento",
-                                                         "¡Evalúa mi conocimiento!", "Dashboard progreso"])
-
+# Inicializar estado de sesión si no existe
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
+if "pagina" not in st.session_state:
+    st.session_state["pagina"] = "Ruta de aprendizaje"  # Página por defecto después del login
 
-if st.session_state["authenticated"]:
-    st.sidebar.button("Cerrar Sesión", on_click=logout)
-
-if pagina == "Login":
+# Si el usuario no está autenticado, mostrar solo el login
+if not st.session_state["authenticated"]:
     login_page()
-elif pagina == "Ruta de aprendizaje":
+    st.stop()  # 🔥 Evita que se ejecute el resto del código si el usuario no ha iniciado sesión
+
+# Sidebar de navegación
+st.sidebar.title("Opciones")
+pagina = st.sidebar.selectbox("Selecciona una sección", ["Ruta de aprendizaje", "Chat de entrenamiento", 
+                                                         "¡Evalúa mi conocimiento!", "Dashboard progreso"])
+
+st.sidebar.button("Cerrar Sesión", on_click=logout)
+
+# Mostrar solo la página seleccionada
+if pagina == "Ruta de aprendizaje":
     training_path.show()
 elif pagina == "Chat de entrenamiento":
     chat.show()
-elif pagina == "Test":
+elif pagina == "¡Evalúa mi conocimiento!":
     test.show()
 elif pagina == "Dashboard progreso":
     dashboard.show()
