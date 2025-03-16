@@ -7,6 +7,9 @@ import sections
 if "current_section" not in st.session_state:
     st.session_state["current_section"] = None
 
+if "get_new_explanation" not in st.session_state:
+    st.session_state["get_new_explanation"] = None
+
 @require_auth
 def show():
     # Si hay una sección seleccionada, cargarla y salir de esta función
@@ -35,6 +38,8 @@ def show():
             with cols[idx % 2]:
                 # Crear un botón para cada curso
                 if st.button(training["trainingName"], key=training["trainingID"]):
+                    st.session_state["training_name"] = training["trainingName"]
+                    st.session_state["get_new_explanation"] = True
                     # Si el curso ya está seleccionado, deseleccionarlo
                     if st.session_state.get("selected_course") == training["trainingID"]:
                         st.session_state.selected_course = None
@@ -120,7 +125,8 @@ def show_topics(course_id):
             if st.button(topic_name, key=f"topic_{topic_id}"):
                 st.session_state["current_section"] = 'topic_content'  # Guardamos la sección activa
                 st.session_state["selected_topic_id"] = topic_id
-                print(f'current_section changed 1: {st.session_state['current_section']}')
+                st.session_state["topic_name"] = topic_name
+                print(f'current_section changed 1: {st.session_state['current_section']}, {topic_name}')
                 st.session_state["selected_topic_items"] = items
                 # Redirigir a la sección correspondiente
                 st.rerun()
