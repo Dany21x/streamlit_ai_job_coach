@@ -7,6 +7,8 @@ if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 if "pagina" not in st.session_state:
     st.session_state["pagina"] = "Home"  # Página por defecto después del login
+if "navigation" not in st.session_state:
+    st.session_state["navigation"] = "Home"
 
 # Si el usuario no está autenticado, mostrar solo el login
 if not st.session_state["authenticated"]:
@@ -15,19 +17,28 @@ if not st.session_state["authenticated"]:
 
 # Sidebar de navegación
 st.sidebar.title("Opciones")
-pagina = st.sidebar.selectbox("Selecciona una sección", ["Home", "Ruta de aprendizaje", "Chat de entrenamiento",
-                                                         "¡Evalúa mi conocimiento!", "Dashboard progreso"])
+pagina = st.sidebar.selectbox("Selecciona una sección", ["Home","Ruta de aprendizaje", "Chat de entrenamiento",
+                                                         "¡Evalúa mi conocimiento!", "Dashboard progreso"],
+                              index=["Home", "Ruta de aprendizaje", "Chat de entrenamiento",
+                                     "¡Evalúa mi conocimiento!", "Dashboard progreso"].index(st.session_state["navigation"]),
+                              key="pagina_selector")
+
+# Actualizar la navegación
+if pagina != st.session_state["navigation"]:
+    st.session_state["navigation"] = pagina
+    st.rerun()  # 🔄 Volver a renderizar la página para aplicar el cambio
 
 st.sidebar.button("Cerrar Sesión", on_click=logout)
 
 # Mostrar solo la página seleccionada
-if pagina == "Ruta de aprendizaje":
+if st.session_state["navigation"] == "Ruta de aprendizaje":
     training_path.show()
-elif pagina == "Home":
+elif st.session_state["navigation"] == "Home":
     home.show()
-elif pagina == "Chat de entrenamiento":
+elif st.session_state["navigation"] == "Chat de entrenamiento":
     chat.show()
-elif pagina == "¡Evalúa mi conocimiento!":
+elif st.session_state["navigation"] == "¡Evalúa mi conocimiento!":
     test.show()
-elif pagina == "Dashboard progreso":
+elif st.session_state["navigation"] == "Dashboard progreso":
     dashboard.show()
+

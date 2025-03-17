@@ -22,6 +22,10 @@ def show():
             st.session_state["current_section"] = 'chat'
             st.session_state["selected_item_id"] = topic_id
             st.session_state["item_name"] = item_name
+
+            st.session_state["messages"] = []
+            st.session_state["get_new_explanation"] = True  # Para pedir la explicación inicial
+
             print(f'current_section changed 3: {st.session_state['current_section']}, {item_name}')
             st.rerun()
 

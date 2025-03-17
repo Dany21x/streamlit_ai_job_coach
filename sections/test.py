@@ -123,21 +123,30 @@ def get_dummy_data():
 @require_auth
 def show():
     """Muestra el módulo de evaluación y maneja la interacción del usuario."""
-    st.title("Módulo de Evaluación")
-    st.sidebar.header("Opciones")
-    
-    if st.sidebar.button("Actualizar Preguntas"):
-        st.experimental_rerun()
 
-    data = get_data()
-    print(data)
-    if data is None:
-        data= get_dummy_data()
-    print(data)
-    if data:
-        display_form(data)
+    if st.session_state.get("selected_item_id", None):
+
+        st.title(f"Módulo de Evaluación: {st.session_state["item_name"]} (ID {st.session_state["selected_item_id"]})")
+        st.write(f"Ruta: {st.session_state["training_name"]}")
+
+        data = get_data()
+        print(data)
+        if data is None:
+            data= get_dummy_data()
+        print(data)
+        if data:
+            display_form(data)
+        else:
+            st.warning("No se pudieron cargar las preguntas.")
+
     else:
-        st.warning("No se pudieron cargar las preguntas.")
+        st.title(f"Módulo de Evaluación")
+        st.write(f":warning: ¡Primero debes pasar por la ruta de aprendizaje y seleccionar un tema! :warning:")
+
+        if st.button("Llévame a la Ruta de Aprendizaje :rocket:"):
+            st.session_state["navigation"] = "Ruta de aprendizaje"
+            st.session_state["current_section"] = None
+            st.rerun()
 
 if __name__ == "__main__":
     show()

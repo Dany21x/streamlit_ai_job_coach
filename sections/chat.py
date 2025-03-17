@@ -16,6 +16,15 @@ client = AzureOpenAI(
 
 @require_auth
 def show():
+    if st.button("🔙 Volver a la Ruta de Aprendizaje"):
+        st.session_state["navigation"] = "Ruta de aprendizaje"
+        st.session_state["current_section"] = None
+        st.rerun()
+
+    if st.sidebar.button("¡Evalúame!"):
+        st.session_state["navigation"] = "¡Evalúa mi conocimiento!"
+        st.rerun()
+
     print('entra al chat')
     st.title("Chat de entrenamiento")
 
