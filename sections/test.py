@@ -25,128 +25,128 @@ def get_data():
         return None
 
 # Enviar respuestas a la API
-def submit_responses(employee_id, training_id, topic_id, responses):
-    """Envía las respuestas del usuario a la API en el formato requerido."""
-    data = {
+def submit_responses(employee_id, training_id, topic_id, responses, user_name):
+    """Envía las respuestas del usuario a la API en los dos formatos requeridos."""
+    data1 = {
         "EmployeeID": employee_id,
         "TrainingID": training_id,
         "TopicID": topic_id,
         "Responses": responses,
         "ResponseDate": datetime.datetime.utcnow().isoformat() + "Z"
     }
-    print(f"data response: {data}")
+    
+    data2 = {
+        "usuario": user_name,
+        "respuestas": [
+            {"id_pregunta": res["QuestionID"], "respuesta_usuario": res["SelectedOptionID"]}
+            for res in responses
+        ]
+    }
+    
+    print(f"data1 response: {data1}")
+    print(f"data2 response: {data2}")
     try:
-        response = requests.post(API_RESPONSES_URL, json=data)
+        response = requests.post(API_RESPONSES_URL, json=data1)
         if response.status_code == 200:
             st.success("¡Respuestas enviadas con éxito!")
         else:
             st.error(f"Error al enviar respuestas: {response.status_code}")
     except Exception as e:
         st.error(f"Error de conexión: {e}")
+    
+    return data2  # Retornar el segundo JSON
 
 # Mostrar formulario de evaluación
-def display_form(data, employee_id=1, training_id=1, topic_id=1):
+def display_form(data, employee_id=1, training_id=1, topic_id=1, user_name="Usuario"): 
     """Genera dinámicamente el formulario de evaluación con las preguntas obtenidas."""
-    if not data or "questions" not in data:
+    if not data or "questions" not in data or "Questions" not in data["questions"]:
         st.warning("No hay preguntas disponibles.")
         return
 
     st.header("Evaluación de Conocimientos")
     user_responses = []
 
-    for question in data["questions"]:
-        question_id = str(question["id"])
+    training_id = data["questions"]["TrainingID"]
+    topic_id = data["questions"]["TopicID"]
+
+    for question in data["questions"]["Questions"]:
+        question_id = str(question["QuestionID"])
         key = f"question_{question_id}"
         selected_option = st.radio(
-            f"**{question['question']}**", 
-            question["options"], 
+            f"**{question['Question']}**", 
+            question["Options"], 
             key=key
         )
         
         # Determinar si la respuesta es correcta
-        correct_option = question["options"][question["correct_answer"]]
+        correct_option = question["Options"][question["CorrectAnswer"]]
         is_correct = selected_option == correct_option
         
         # Guardar respuesta en el formato requerido
         user_responses.append({
             "QuestionID": question_id,
-            "SelectedOptionID": str(question["options"].index(selected_option)),  # ID de la opción seleccionada
+            "SelectedOptionID": selected_option,  # Guardamos la opción seleccionada
             "IsCorrect": is_correct
         })
 
         st.write("---")
 
     if st.button("Enviar Evaluación"):
-        submit_responses(employee_id, training_id, topic_id, user_responses)
+        json_result = submit_responses(employee_id, training_id, topic_id, user_responses, user_name)
+        st.json(json_result)  # Mostrar el segundo JSON en pantalla
 
+# Datos de prueba si la API no responde
 def get_dummy_data():
-    # Datos de ejemplo para simular la respuesta de la API
+    """Retorna datos de prueba en la misma estructura que la API."""
     return {
-        "questions": [
-            {
-            "id": 1,
-            "question": "¿Cuál es la diferencia entre listas, tuplas y diccionarios en Python?",
-            "options": [
-                "Las listas y tuplas son mutables, pero los diccionarios no.",
-                "Las listas son mutables, las tuplas son inmutables y los diccionarios almacenan pares clave-valor.",
-                "Las tuplas pueden cambiar de tamaño, pero las listas no.",
-                "Los diccionarios solo pueden almacenar datos numéricos."
-            ],
-            "correct_answer": 1
-            },
-            {
-            "id": 2,
-            "question": "¿Cómo funcionan las funciones en Python y cuál es la diferencia entre args y **kwargs?",
-            "options": [
-                "args permite recibir un número variable de argumentos posicionales, mientras que kwargs recibe un número variable de argumentos con nombre.",
-                "*args solo acepta listas y kwargs solo acepta diccionarios.",
-                "args y **kwargs siempre deben usarse juntos en una función.",
-                "args y *kwargs son formas de definir variables dentro de una función."
-            ],
-            "correct_answer": 0
-            },
-            {
-            "id": 3,
-            "question": "¿Cuál de las siguientes opciones es una expresión válida en Python?",
-            "options": [
-                "x = if y > 10 then 'Alto' else 'Bajo'",
-                "resultado = (10 + 5) 2",
-                "for i in range(5): i * 2",
-                "def my_function: return x + y"
-            ],
-            "correct_answer": 1
-            }
-        ]
+        "status": "result",
+        "questions": {
+            "id": "dummy-id",
+            "TrainingID": "1",
+            "TopicID": "1",
+            "Questions": [
+                {
+                    "QuestionID": 1,
+                    "Question": "¿Qué es una lambda en Python?",
+                    "Options": [
+                        "Una función anónima",
+                        "Una clase especial de variables",
+                        "Un módulo de Python",
+                        "Un tipo de bucle"
+                    ],
+                    "CorrectAnswer": 0
+                },
+                {
+                    "QuestionID": 2,
+                    "Question": "¿Cuál es la sintaxis básica de una lambda en Python?",
+                    "Options": [
+                        "lambda x: x*2",
+                        "def x: x*2",
+                        "class x: x*2",
+                        "for x in range(2): x*2"
+                    ],
+                    "CorrectAnswer": 0
+                }
+            ]
+        }
     }
 
 # Función principal
 @require_auth
 def show():
     """Muestra el módulo de evaluación y maneja la interacción del usuario."""
-
-    if st.session_state.get("selected_item_id", None):
-
-        st.title(f"Módulo de Evaluación: {st.session_state["item_name"]} (ID {st.session_state["selected_item_id"]})")
-        st.write(f"Ruta: {st.session_state["training_name"]}")
-
-        data = get_data()
-        print(data)
-        if data is None:
-            data= get_dummy_data()
-        print(data)
-        if data:
-            display_form(data)
-        else:
-            st.warning("No se pudieron cargar las preguntas.")
-
+    st.title("Módulo de Evaluación")
+    
+    user_name = st.session_state.get("user", {}).get("data", {}).get("employee", {}).get("firstName", "Usuario")
+    
+    data = get_data()
+    if data is None:
+        data = get_dummy_data()
+    
+    if data:
+        display_form(data, user_name=user_name)
     else:
-        st.title(f"Módulo de Evaluación")
-        st.write(f":warning: ¡Primero debes pasar por la ruta de aprendizaje y seleccionar un tema! :warning:")
-
-        if st.button("Llévame a la Ruta de Aprendizaje :rocket:"):
-            st.session_state["navigation"] = "Ruta de aprendizaje"
-            st.session_state["current_section"] = None
-            st.rerun()
+        st.warning("No se pudieron cargar las preguntas.")
 
 if __name__ == "__main__":
     show()

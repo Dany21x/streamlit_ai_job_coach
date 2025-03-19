@@ -47,7 +47,7 @@ def show():
                         st.session_state.selected_course = training["trainingID"]
 
     else:
-        st.warning("No se pudieron cargar las rutas de formación. Por favor, inténtalo más tarde.")
+        st.warning("No tienes rutas de formación asociadas en el momento.")
 
     # Si se ha seleccionado un curso, obtener y mostrar los subtemas
     if st.session_state.get("selected_course"):

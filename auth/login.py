@@ -3,12 +3,20 @@ import requests
 
 API_URL = "https://ai-jobs-coaches-api.azurewebsites.net/api/accounts/login"
 
+
 def authenticate(username, password):
-    """Autentica al usuario llamando a la API."""
+    """Autentica al usuario llamando a la API y obtiene su rol."""
     response = requests.post(API_URL, json={"username": username, "password": password})
     if response.status_code == 200:
-        return response.json()  # Retorna el token u otros datos
-    return None
+        user_data = response.json()
+        if user_data["isSuccess"]:
+            st.session_state["authenticated"] = True
+            st.session_state["user"] = user_data
+            st.session_state["id_user"] = user_data["data"]["employeeID"]
+            st.session_state["roleID"] = user_data["data"]["employee"]["roleID"]  # Guardar el rol
+            return True
+    return False
+
 
 def login_page():
     """Interfaz del login centrado visualmente."""
@@ -26,15 +34,12 @@ def login_page():
         login_btn = st.button("Ingresar", use_container_width=True)
 
         if login_btn:
-            user_data = authenticate(username, password)
-            if user_data:
-                st.session_state["authenticated"] = True
-                st.session_state["user"] = user_data
-                st.session_state["id_user"] = user_data["data"]["employeeID"]
+            if authenticate(username, password):
                 st.success("¡Login exitoso!")
                 st.rerun()
             else:
                 st.error("Usuario o contraseña incorrectos")
+
 
 def logout():
     """Cierra la sesión del usuario."""
