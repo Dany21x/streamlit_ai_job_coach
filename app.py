@@ -1,6 +1,6 @@
 import streamlit as st
 from auth.login import login_page, logout
-from sections import chat, test, dashboard, training_path, home
+from sections import chat, test, dashboard, training_path, home, create_training
 
 # Inicializar estado de sesión si no existe
 if "authenticated" not in st.session_state:
@@ -18,9 +18,11 @@ if not st.session_state["authenticated"]:
 # Sidebar de navegación
 st.sidebar.title("Opciones")
 pagina = st.sidebar.selectbox("Selecciona una sección", ["Home","Ruta de aprendizaje", "Chat de entrenamiento",
-                                                         "¡Evalúa mi conocimiento!", "Dashboard progreso"],
+                                                         "¡Evalúa mi conocimiento!", "Dashboard progreso",
+                                                         "Crear curso"],
                               index=["Home", "Ruta de aprendizaje", "Chat de entrenamiento",
-                                     "¡Evalúa mi conocimiento!", "Dashboard progreso"].index(st.session_state["navigation"]),
+                                     "¡Evalúa mi conocimiento!", "Dashboard progreso",
+                                     "Crear curso"].index(st.session_state["navigation"]),
                               key="pagina_selector")
 
 # Actualizar la navegación
@@ -41,4 +43,6 @@ elif st.session_state["navigation"] == "¡Evalúa mi conocimiento!":
     test.show()
 elif st.session_state["navigation"] == "Dashboard progreso":
     dashboard.show()
+elif st.session_state["navigation"] == "Crear curso":
+    create_training.show()
 
