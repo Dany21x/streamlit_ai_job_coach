@@ -24,6 +24,7 @@ role_id = st.session_state["roleID"]
 menu = ["Home", "Ruta de aprendizaje", "Chat de entrenamiento", "¡Evalúa mi conocimiento!"]
 if role_id == 1:  # Coach: Accede a todo
     menu.append("Dashboard progreso")
+    menu.append("Crear curso")
 # Sidebar de navegación
 st.sidebar.title("Opciones")
 pagina = st.sidebar.selectbox("Selecciona una sección", menu,
@@ -48,5 +49,5 @@ elif st.session_state["navigation"] == "¡Evalúa mi conocimiento!":
     test.show()
 elif st.session_state["navigation"] == "Dashboard progreso" and role_id == 1:
     dashboard.show()  # Solo Coach accede
-elif st.session_state["navigation"] == "Crear curso":
+elif st.session_state["navigation"] == "Crear curso" and role_id == 1:
     create_training.show()

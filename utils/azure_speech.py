@@ -1,6 +1,7 @@
 import os
 import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
+import tempfile
 
 load_dotenv()
 
@@ -22,7 +23,28 @@ def speech_recognize_once_from_mic(audio_path, lang_code='es-ES'):
         return f"Speech Recognition canceled: {result.cancellation_details.reason}"
     return "Unknown error"
 
-def text_to_speech(text, lang_code):
+def text_to_speech(text, lang_code="es-CO", voice_name="es-PE-AlexNeural"):
+    """Convierte texto a audio usando Azure TTS con un idioma y voz específicos"""
+    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+
+    # Establecer idioma y voz
+    speech_config.speech_synthesis_language = lang_code
+    speech_config.speech_synthesis_voice_name = voice_name
+
+    temp_audio_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+
+    audio_config = speechsdk.AudioConfig(filename=temp_audio_file.name)
+    synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
+
+    result = synthesizer.speak_text_async(text).get()
+
+    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted and result.audio_data:
+        return temp_audio_file.name  # Devolver la ruta del archivo de audio
+    else:
+        #st.error(f"Error en la síntesis: {result.reason}")
+        return None
+
+def text_to_speech_beta(text, lang_code='es-ES-AlvaroNeural'):
     try:
         speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
         speech_config.speech_synthesis_language = lang_code

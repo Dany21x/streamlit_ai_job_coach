@@ -39,6 +39,7 @@ def show():
                 # Crear un botón para cada curso
                 if st.button(training["trainingName"], key=training["trainingID"]):
                     st.session_state["training_name"] = training["trainingName"]
+                    st.session_state["training_id"] = training["trainingID"]
                     st.session_state["get_new_explanation"] = True
                     # Si el curso ya está seleccionado, deseleccionarlo
                     if st.session_state.get("selected_course") == training["trainingID"]:
@@ -82,12 +83,12 @@ def get_trainings(id_user):
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
-
+    print(api_url)
     try:
-        response = requests.post(api_url, headers=headers)
+        response = requests.get(api_url, headers=headers)
         print(response.json())
         if response.status_code == 200:
-            return response.json()
+            return response.json().get('data')
     except Exception as e:
         st.error(f"Error al obtener subtemas: {str(e)}")
 
@@ -102,10 +103,10 @@ def get_topics(course_id):
     }
 
     try:
-        response = requests.post(api_url, headers=headers)
+        response = requests.get(api_url, headers=headers)
         print(f'response: {response}')
         if response.status_code == 200:
-            return response.json()
+            return response.json().get("data")
     except Exception as e:
         st.error(f"Error al obtener temas: {str(e)}")
 
