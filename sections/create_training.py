@@ -11,8 +11,39 @@ azure_storage_account_key = os.getenv("AZURE_STORAGE_ACCOUNT_KEY")
 container_name = os.getenv("AZURE_STORAGE_CONTAINER_NAME")
 
 # API endpoint para enviar la URL del archivo, training name y description
-API_CREATE_TRAINING_URL = "https://tu-api.com/upload-metadata"
+API_CREATE_TRAINING_URL = "https://beecode.azurewebsites.net/generate_topics"
+API_TOPICS_TO_DB = os.getenv("API_TOPICS_TO_DB", "https://ai-jobs-coaches-api-backend.azurewebsites.net/api/trainings")
 
+def send_topics_to_db(topics_data):
+    try:
+        # Extraer el contenido de "topics_json"
+        topics_json = topics_data.get("topics_json", {})
+
+        # Asegurar que "topics" sea una lista, incluso si está vacío
+        topics = topics_json.get("topics", [])
+        if not isinstance(topics, list):
+            topics = []  # Garantizar que sea una lista vacía en caso de error
+
+        # Renombrar las claves según lo esperado por la API
+        payload = {
+            "training_name": topics_json.get("trainingName"),
+            "description": topics_json.get("description"),
+            "url": topics_json.get("attachment"),
+            "topics": topics  # Ahora garantizamos que sea una lista
+        }
+
+        # Validar que la lista de temas no esté vacía
+        if not topics:
+            st.error("Error: El campo 'topics' está vacío. Verifica la fuente de datos.")
+            return
+
+        response = requests.post(API_TOPICS_TO_DB, json=payload)
+        if response.status_code == 200:
+            st.success("¡Curso registrado!")
+        else:
+            st.error(f"Error al registrar en base de datos: {response.status_code} - {response.text}")
+    except Exception as e:
+        st.error(f"Error al conectar con la API de registro: {e}")
 
 # Función para subir el archivo a Azure Blob Storage
 def upload_to_azure_storage(file):
@@ -41,17 +72,20 @@ def send_metadata_to_api(training_name, description, file_url):
     payload = {
         "training_name": training_name,
         "description": description,
-        "file_url": file_url
+        "url": file_url
     }
+
+    print(f'"training_name": {training_name}, "description": {description}, "url": {file_url}')
 
     try:
         response = requests.post(API_CREATE_TRAINING_URL, json=payload)
         if response.status_code == 200:
-            st.success("Datos enviados correctamente a la API")
+            st.success("Documento analizado correctamente")
+            return response.json().get("topics_json", "Lo siento, intente nuevamente")
         else:
             st.error(f"Error en la API: {response.status_code} - {response.text}")
     except Exception as e:
-        st.error(f"Error al conectar con la API: {e}")
+        st.error(f"Error al conectar con la API de análisis: {e}")
 
 
 @require_auth
@@ -75,5 +109,8 @@ def show():
                 # Enviar los datos a la API
                 analyzer_response = send_metadata_to_api(training_name, description, file_url)
                 st.markdown(analyzer_response)
+
+                send_topics_to_db(analyzer_response)
+
             else:
                 st.error("❌ No se pudo obtener la URL del archivo")

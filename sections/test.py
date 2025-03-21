@@ -3,13 +3,16 @@ import requests
 from auth.decorators import require_auth
 import datetime
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Configuración de la página
 st.set_page_config(page_title="Sistema de Evaluación", layout="wide")
 
 # URLs de la API
 API_QUESTIONS_URL = os.getenv("API_QUESTIONS_URL")
-API_RESPONSES_FEEDBACK_URL = os.getenv("API_RESPONSES_FEEDBACK_URL")
+API_RESPONSES_FEEDBACK_URL = os.getenv("API_RESPONSES_FEEDBACK_URL", "https://beecode.azurewebsites.net/generate_feedback")
 API_RESPONSES_DATABASE_URL = os.getenv("API_RESPONSES_DATABASE_URL")
 
 # Obtener preguntas desde la API
@@ -50,22 +53,26 @@ def get_data():
 
     return st.session_state.quiz_questions
 
+def get_feedback(data):
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+        response = requests.post(API_RESPONSES_FEEDBACK_URL, headers=headers, json=data)
+        print(response.json())
+        if response.status_code == 200:
+            print(response.json())
+            return response.json().get("feedback", "Lo siento, no pudimos obtener retroalimentación de tu evaluación.")
+    except Exception as e:
+        st.error(f"Error al obtener feedback: {str(e)}")
 
 # Enviar respuestas a la API
-def submit_responses(quiz_id, employee_id, training_id, topic_id, responses, user_name):
+def submit_responses(answers_json):
     """Envía las respuestas del usuario a la API en los dos formatos requeridos."""
-    data1 = {
-        "quizID": quiz_id,
-        "employeeID": employee_id,
-        "trainingID": training_id,
-        "topicID": topic_id,
-        "quizResponses": responses,
-        "ResponseDate": datetime.datetime.utcnow().isoformat() + "Z"
-    }
+    print(f"data1 response: {answers_json}")
 
-    print(f"data1 response: {data1}")
-
-    # '''
+    '''
     try:
 
         headers = {
@@ -80,8 +87,8 @@ def submit_responses(quiz_id, employee_id, training_id, topic_id, responses, use
             st.error(f"Error al enviar respuestas: {response.status_code}")
     except Exception as e:
         st.error(f"Error de conexión: {e}")
-    # '''
-    return data1  # Retornar el segundo JSON
+    '''
+    return answers_json  # Retornar el segundo JSON
 
 
 # Mostrar formulario de evaluación
@@ -122,9 +129,28 @@ def display_form(data, employee_id=1, training_id=1, topic_id=1, user_name="Usua
         st.write("---")
 
     if st.button("Enviar Evaluación"):
-        json_result = submit_responses(quiz_id, employee_id, training_id, topic_id, user_responses, user_name)
-        st.json(json_result)  # Mostrar el segundo JSON en pantalla
+        answers_json = create_answers_json(quiz_id, employee_id, training_id, topic_id, user_responses, user_name)
 
+        feedback = get_feedback(answers_json)
+        if feedback:
+            st.markdown(feedback)
+            json_result = submit_responses(answers_json)
+            st.json(json_result)  # Mostrar el segundo JSON en pantalla
+
+
+def create_answers_json(quiz_id, employee_id, training_id, topic_id, responses, user_name):
+    """Envía las respuestas del usuario a la API en los dos formatos requeridos."""
+    data = {
+        "quizID": quiz_id,
+        "employeeID": employee_id,
+        "trainingID": training_id,
+        "topicID": topic_id,
+        "quizResponses": responses,
+        "ResponseDate": datetime.datetime.utcnow().isoformat() + "Z"
+    }
+
+    print(f"data answers response: {data}")
+    return data
 
 # Datos de prueba si la API no responde
 def get_dummy_data():

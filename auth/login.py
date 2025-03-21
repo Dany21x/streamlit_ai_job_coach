@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
+import os
 
-API_URL = "https://ai-jobs-coaches-api.azurewebsites.net/api/accounts/login"
+API_URL = os.getenv("API_LOGIN_URL", "https://ai-jobs-coaches-api-backend.azurewebsites.net/api/accounts/login")
 
 
 def authenticate(username, password):

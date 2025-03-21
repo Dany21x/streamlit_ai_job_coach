@@ -158,7 +158,7 @@ def get_llm_answer(topic, question=None):
 
 
 def get_additional_resources(id_training):
-    api_url = f"https://ai-jobs-coaches-api.azurewebsites.net/api/trainings/{id_training}/courses"
+    api_url = f"https://ai-jobs-coaches-api-backend.azurewebsites.net/api/trainings/{id_training}/courses"
     print(f'{api_url}')
     headers = {
         "Content-Type": "application/json",

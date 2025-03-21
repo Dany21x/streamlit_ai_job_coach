@@ -78,7 +78,7 @@ def render_course_card(course):
 
 # Función para obtener datos de la API
 def get_trainings(id_user):
-    api_url = f"https://ai-jobs-coaches-api.azurewebsites.net/api/employees/{id_user}/trainings"
+    api_url = f"https://ai-jobs-coaches-api-backend.azurewebsites.net/api/employees/{id_user}/trainings"
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json"
@@ -96,7 +96,7 @@ def get_trainings(id_user):
 def get_topics(course_id):
 
     print(f'course_id: {course_id}')
-    api_url = f"https://ai-jobs-coaches-api.azurewebsites.net/api/trainings/{course_id}/topics"
+    api_url = f"https://ai-jobs-coaches-api-backend.azurewebsites.net/api/trainings/{course_id}/topics"
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json"
