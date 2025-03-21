@@ -72,7 +72,6 @@ def submit_responses(answers_json):
     """Envía las respuestas del usuario a la API en los dos formatos requeridos."""
     print(f"data1 response: {answers_json}")
 
-    '''
     try:
 
         headers = {
@@ -80,14 +79,14 @@ def submit_responses(answers_json):
             "Accept": "application/json"
         }
 
-        response = requests.post(API_RESPONSES_DATABASE_URL, headers=headers, json=data1)
+        response = requests.post(API_RESPONSES_DATABASE_URL, headers=headers, json=answers_json)
         if response.status_code == 200:
             st.success("¡Respuestas enviadas con éxito!")
         else:
             st.error(f"Error al enviar respuestas: {response.status_code}")
     except Exception as e:
         st.error(f"Error de conexión: {e}")
-    '''
+
     return answers_json  # Retornar el segundo JSON
 
 
@@ -133,9 +132,12 @@ def display_form(data, employee_id=1, training_id=1, topic_id=1, user_name="Usua
 
         feedback = get_feedback(answers_json)
         if feedback:
-            st.markdown(feedback)
+            st.write('')
+            st.title("🚀 Tus resultados 👏")
+            st.write('')
+            st.write(feedback)
             json_result = submit_responses(answers_json)
-            st.json(json_result)  # Mostrar el segundo JSON en pantalla
+            #st.json(json_result)  # Mostrar el segundo JSON en pantalla
 
 
 def create_answers_json(quiz_id, employee_id, training_id, topic_id, responses, user_name):

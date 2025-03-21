@@ -10,7 +10,7 @@ global_style = """
         --secondary: #DEDEDE;        /* Gris oscuro para textos */
         --accent: #00E5FF;           /* Acento cian */
         --accent-secondary: #00B8D4; /* Acento cian secundario */
-        --background: #F8F9FA;       /* Fondo ligeramente grisáceo */
+        --background: #000000;       /* Fondo ligeramente grisáceo */
         --card-bg: #FFFFFF;          /* Fondo de tarjetas */
         --text: #DEDEDE;             /* Texto principal - casi negro para mejor contraste */
         --text-secondary: #DEDEDE;   /* Texto secundario - gris oscuro */
@@ -20,6 +20,11 @@ global_style = """
         --error: #D50000;            /* Rojo error */
         --white: #FFFFFF;
         --white-light: #D1B3FF;
+    }
+
+    /* Fondo estándar */
+    body, .stApp {
+        background-color: black !important;
     }
 
     /* Estilos globales */
@@ -163,7 +168,7 @@ global_style = """
 
     /* Estilos para las burbujas de chat - Mejorado para contraste */
     [data-testid="stChatMessage"] {
-        background-color: var(--card-bg);
+        background-color: #000000;
         border-radius: 14px;
         padding: 12px 16px;
         margin: 10px 0;
@@ -235,6 +240,23 @@ high_contrast_style = """
     body {
         background-color: #0D0D0D; /* Fondo casi negro */
     }
+    
+    @media (prefers-contrast: more) {
+    body, .stApp {
+        background: black !important;
+        color: white !important;
+    }
+    
+    .high-contrast body, .high-contrast .stApp {
+        background-color: black !important;
+        color: white !important;
+    }
+
+    button {
+        border: 2px solid white !important;
+        color: white !important;
+        }
+    }
 
     .main .block-container {
         background-color: #0D0D0D;
@@ -261,7 +283,7 @@ high_contrast_style = """
 
     /* Barra lateral con color sólido */
     [data-testid="stSidebar"] {
-        background: #0D0D0D; /* Negro sólido */
+        background: black !important; /* Negro sólido */
         border-right: 2px solid #FFFF00; /* Amarillo para definir bordes */
     }
 
@@ -276,7 +298,7 @@ high_contrast_style = """
 
     /* Botones en color plano con alto contraste */
     [data-testid="stButton"] > button {
-        background: #FFFF00; /* Amarillo sólido - WCAG AAA con fondo negro */
+        background: #BB8AFF ; /* Amarillo sólido - WCAG AAA con fondo negro */
         color: #000000 !important; /* Texto negro para contraste con fondo amarillo */
         border: 2px solid #FFFFFF; /* Borde blanco para definir */
         font-weight: 700; /* Negrita para mejorar legibilidad */
@@ -285,6 +307,12 @@ high_contrast_style = """
         transition: all 0.2s ease;
         box-shadow: none; /* Sin sombras que reduzcan contraste */
     }
+    .high-contrast [data-testid="stButton"] > button {
+    background: #BB8AFF !important; /* Morado neón */
+    color: black !important; /* Texto negro */
+    border: 2px solid white !important;
+    font-weight: 700;
+}
 
     [data-testid="stButton"] > button:hover {
         background: #FFFFFF; /* Blanco al hacer hover */
@@ -324,9 +352,9 @@ high_contrast_style = """
 
     /* Burbujas de chat con alto contraste */
     [data-testid="stChatMessage"] {
-        background-color: #1A1A1A;
-        border: 2px solid #4D4D4D;
-        box-shadow: none;
+        background-color: black !important;
+        color: white !important;
+        border: 1px solid var(--border);
     }
 
     [data-testid="stChatMessage"][data-testid="user-message"] {

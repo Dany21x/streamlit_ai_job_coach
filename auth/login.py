@@ -27,8 +27,11 @@ def login_page():
     col1, col2, col3 = st.columns([1, 2, 1])
 
     with col2:  # El formulario está en la columna del centro
+        # Agregar el logo centrado
+        st.image("assets/logo.png", width=200)  # Ajusta el ancho según necesites
+        st.write('---')
         st.markdown("### Accede con tus credenciales")
-        
+
         username = st.text_input("Usuario", key="username", help="Ingresa tu nombre de usuario")
         password = st.text_input("Contraseña", type="password", key="password", help="Ingresa tu contraseña")
 
@@ -40,7 +43,6 @@ def login_page():
                 st.rerun()
             else:
                 st.error("Usuario o contraseña incorrectos")
-
 
 def logout():
     """Cierra la sesión del usuario."""
