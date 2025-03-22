@@ -6,7 +6,6 @@ from utils.css_styles import load_all_styles
 # Cargar estilos
 load_all_styles()
 
-
 # Inicializar estado de sesión si no existe
 def init_session_state():
     if "authenticated" not in st.session_state:
@@ -17,7 +16,6 @@ def init_session_state():
         st.session_state["navigation"] = "Home"
     if "roleID" not in st.session_state:
         st.session_state["roleID"] = None
-
 
 init_session_state()
 
@@ -41,6 +39,8 @@ def render_sidebar():
         st.image("assets/logo.png", width=125)  # Agrega el logo
         st.title("Opciones")
 
+        prev_navigation = st.session_state["navigation"]
+
         pagina = st.selectbox(
             "Selecciona una sección",
             menu,
@@ -48,7 +48,10 @@ def render_sidebar():
             key="pagina_selector"
         )
 
-        #st.write("---")
+        if pagina != prev_navigation:
+            st.session_state["navigation"] = pagina
+            st.rerun()
+
         contrast_mode = st.toggle("Modo alto contraste")
         if contrast_mode:
             from utils.css_styles import toggle_contrast_mode
@@ -60,8 +63,7 @@ def render_sidebar():
 
 
 # Renderizar sidebar y actualizar la navegación
-st.session_state["navigation"] = render_sidebar()
-
+render_sidebar()
 
 # ----- NAVEGACIÓN -----
 def show_page():
@@ -78,5 +80,5 @@ def show_page():
     if page_function:
         page_function()
 
-
 show_page()
+
