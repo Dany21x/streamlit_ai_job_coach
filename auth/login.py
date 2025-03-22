@@ -28,7 +28,9 @@ def login_page():
 
     with col2:  # El formulario está en la columna del centro
         # Agregar el logo centrado
-        st.image("assets/logo.png", width=200)  # Ajusta el ancho según necesites
+        left_co, cent_co, last_co = st.columns(3)
+        with cent_co:
+            st.image("assets/logo.png", width=200)
         st.write('---')
         st.markdown("### Accede con tus credenciales")
 
@@ -36,6 +38,13 @@ def login_page():
         password = st.text_input("Contraseña", type="password", key="password", help="Ingresa tu contraseña")
 
         login_btn = st.button("Ingresar", use_container_width=True)
+
+        st.markdown("---")  # Línea separadora
+
+        left_co, cent_co, last_co, last_co2, last_co3 = st.columns(5)
+        with last_co:
+            st.markdown('<p style="text-align: center; font-size: 14px;">Powered by</p>', unsafe_allow_html=True)
+            st.image('assets/bee_code.png', width=110)
 
         if login_btn:
             if authenticate(username, password):

@@ -140,6 +140,8 @@ def get_llm_answer(topic, question=None):
             "id_user": str(st.session_state.get("id_user"))
         }
 
+        print(f'LLM Payload: {payload}')
+
     else:
         payload = {
             "topic": topic,  # Parámetro enviado en el body
