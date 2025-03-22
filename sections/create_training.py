@@ -16,20 +16,19 @@ API_TOPICS_TO_DB = os.getenv("API_TOPICS_TO_DB", "https://ai-jobs-coaches-api-ba
 
 def send_topics_to_db(topics_data):
     try:
-        # Extraer el contenido de "topics_json"
-        topics_json = topics_data.get("topics_json", {})
+        # Validar que topics_data es un diccionario y contiene 'topics'
+        if not isinstance(topics_data, dict) or "topics" not in topics_data:
+            st.error("Error: El formato de respuesta de la API es incorrecto.")
+            return
 
-        # Asegurar que "topics" sea una lista, incluso si está vacío
-        topics = topics_json.get("topics", [])
-        if not isinstance(topics, list):
-            topics = []  # Garantizar que sea una lista vacía en caso de error
+        topics = topics_data.get("topics", [])  # Ahora sí obtenemos la lista correcta
 
-        # Renombrar las claves según lo esperado por la API
+        # Renombrar claves según lo esperado por la API de registro
         payload = {
-            "training_name": topics_json.get("trainingName"),
-            "description": topics_json.get("description"),
-            "url": topics_json.get("attachment"),
-            "topics": topics  # Ahora garantizamos que sea una lista
+            "trainingName": topics_data.get("trainingName"),
+            "description": topics_data.get("description"),
+            "attachment": topics_data.get("attachment"),
+            "topics": topics
         }
 
         # Validar que la lista de temas no esté vacía
@@ -44,6 +43,7 @@ def send_topics_to_db(topics_data):
             st.error(f"Error al registrar en base de datos: {response.status_code} - {response.text}")
     except Exception as e:
         st.error(f"Error al conectar con la API de registro: {e}")
+
 
 # Función para subir el archivo a Azure Blob Storage
 def upload_to_azure_storage(file):
@@ -108,8 +108,6 @@ def show():
 
                 # Enviar los datos a la API
                 analyzer_response = send_metadata_to_api(training_name, description, file_url)
-                st.markdown(analyzer_response)
-
                 send_topics_to_db(analyzer_response)
 
             else:
